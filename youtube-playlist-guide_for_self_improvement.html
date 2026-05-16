@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate YouTube Playlist Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --surface: #0e1318;
+    --card: #131920;
+    --border: #1e2a35;
+    --border-light: #243040;
+    --red: #ff4d4d;
+    --orange: #ff8c42;
+    --yellow: #ffd166;
+    --green: #06d6a0;
+    --cyan: #00b4d8;
+    --blue: #4895ef;
+    --purple: #b388ff;
+    --pink: #f72585;
+    --white: #e8f0f7;
+    --muted: #6b8099;
+    --muted2: #4a5f75;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #080c10 0%, #0a1520 50%, #080c10 100%);
+    padding: 70px 32px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(72,149,239,0.06) 0%, transparent 70%);
+    top: -200px; left: 50%; transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .yt-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,77,77,0.1);
+    border: 1px solid rgba(255,77,77,0.3);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--red);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .yt-dot { width: 8px; height: 8px; background: var(--red); border-radius: 50%; animation: pulse 1.5s infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 7vw, 80px);
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 .line1 { color: var(--white); }
+  .hero h1 .line2 {
+    background: linear-gradient(90deg, var(--blue), var(--cyan), var(--green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 480px;
+    margin: 0 auto 36px;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .cat-count {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .count-item { text-align: center; }
+  .count-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--cyan), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  .count-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+
+  /* FILTER BAR */
+  .filter-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+
+  .filter-btn {
+    padding: 14px 18px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+  }
+
+  .filter-btn:hover { color: var(--white); }
+  .filter-btn.active { color: var(--white); border-bottom-color: var(--cyan); }
+
+  /* MAIN */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+
+  /* CATEGORY */
+  .category { margin-bottom: 56px; }
+  .category[data-cat] { display: block; }
+
+  .cat-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cat-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .cat-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  .cat-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .cat-tag {
+    margin-left: auto;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* CHANNEL CARDS */
+  .channels { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+
+  .channel-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .channel-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .channel-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-light);
+  }
+
+  .channel-card:hover::before { opacity: 1; }
+
+  .channel-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .channel-name-wrap { flex: 1; }
+
+  .channel-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 3px;
+  }
+
+  .channel-handle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted2);
+    letter-spacing: 0.5px;
+  }
+
+  .channel-badge {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
+
+  .channel-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 14px;
+  }
+
+  .playlist-label {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted2);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+  }
+
+  .playlists { display: flex; flex-direction: column; gap: 5px; }
+
+  .playlist-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 7px;
+    font-size: 12px;
+    color: var(--muted);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+
+  .playlist-item:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: var(--border-light);
+    color: var(--white);
+  }
+
+  .pl-arrow { font-size: 10px; opacity: 0.5; margin-left: auto; }
+
+  /* COLOR SCHEMES per category */
+  .c-body .cat-icon { background: rgba(255,77,77,0.12); }
+  .c-body .cat-tag { background: rgba(255,77,77,0.1); color: var(--red); border: 1px solid rgba(255,77,77,0.2); }
+  .c-body .channel-card::before { background: linear-gradient(90deg, var(--red), var(--orange)); }
+  .c-body .channel-badge { background: rgba(255,77,77,0.12); color: var(--red); }
+
+  .c-fight .cat-icon { background: rgba(255,140,66,0.12); }
+  .c-fight .cat-tag { background: rgba(255,140,66,0.1); color: var(--orange); border: 1px solid rgba(255,140,66,0.2); }
+  .c-fight .channel-card::before { background: linear-gradient(90deg, var(--orange), var(--yellow)); }
+  .c-fight .channel-badge { background: rgba(255,140,66,0.12); color: var(--orange); }
+
+  .c-skin .cat-icon { background: rgba(255,209,102,0.12); }
+  .c-skin .cat-tag { background: rgba(255,209,102,0.1); color: var(--yellow); border: 1px solid rgba(255,209,102,0.2); }
+  .c-skin .channel-card::before { background: linear-gradient(90deg, var(--yellow), var(--green)); }
+  .c-skin .channel-badge { background: rgba(255,209,102,0.12); color: var(--yellow); }
+
+  .c-english .cat-icon { background: rgba(6,214,160,0.12); }
+  .c-english .cat-tag { background: rgba(6,214,160,0.1); color: var(--green); border: 1px solid rgba(6,214,160,0.2); }
+  .c-english .channel-card::before { background: linear-gradient(90deg, var(--green), var(--cyan)); }
+  .c-english .channel-badge { background: rgba(6,214,160,0.12); color: var(--green); }
+
+  .c-speak .cat-icon { background: rgba(0,180,216,0.12); }
+  .c-speak .cat-tag { background: rgba(0,180,216,0.1); color: var(--cyan); border: 1px solid rgba(0,180,216,0.2); }
+  .c-speak .channel-card::before { background: linear-gradient(90deg, var(--cyan), var(--blue)); }
+  .c-speak .channel-badge { background: rgba(0,180,216,0.12); color: var(--cyan); }
+
+  .c-mind .cat-icon { background: rgba(72,149,239,0.12); }
+  .c-mind .cat-tag { background: rgba(72,149,239,0.1); color: var(--blue); border: 1px solid rgba(72,149,239,0.2); }
+  .c-mind .channel-card::before { background: linear-gradient(90deg, var(--blue), var(--purple)); }
+  .c-mind .channel-badge { background: rgba(72,149,239,0.12); color: var(--blue); }
+
+  .c-psych .cat-icon { background: rgba(179,136,255,0.12); }
+  .c-psych .cat-tag { background: rgba(179,136,255,0.1); color: var(--purple); border: 1px solid rgba(179,136,255,0.2); }
+  .c-psych .channel-card::before { background: linear-gradient(90deg, var(--purple), var(--pink)); }
+  .c-psych .channel-badge { background: rgba(179,136,255,0.12); color: var(--purple); }
+
+  .c-finance .cat-icon { background: rgba(6,214,160,0.12); }
+  .c-finance .cat-tag { background: rgba(6,214,160,0.1); color: var(--green); border: 1px solid rgba(6,214,160,0.2); }
+  .c-finance .channel-card::before { background: linear-gradient(90deg, var(--green), var(--blue)); }
+  .c-finance .channel-badge { background: rgba(6,214,160,0.12); color: var(--green); }
+
+  .c-tech .cat-icon { background: rgba(72,149,239,0.12); }
+  .c-tech .cat-tag { background: rgba(72,149,239,0.1); color: var(--blue); border: 1px solid rgba(72,149,239,0.2); }
+  .c-tech .channel-card::before { background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+  .c-tech .channel-badge { background: rgba(72,149,239,0.12); color: var(--blue); }
+
+  .c-fashion .cat-icon { background: rgba(247,37,133,0.12); }
+  .c-fashion .cat-tag { background: rgba(247,37,133,0.1); color: var(--pink); border: 1px solid rgba(247,37,133,0.2); }
+  .c-fashion .channel-card::before { background: linear-gradient(90deg, var(--pink), var(--purple)); }
+  .c-fashion .channel-badge { background: rgba(247,37,133,0.12); color: var(--pink); }
+
+  .c-relation .cat-icon { background: rgba(255,77,77,0.12); }
+  .c-relation .cat-tag { background: rgba(255,77,77,0.1); color: var(--red); border: 1px solid rgba(255,77,77,0.2); }
+  .c-relation .channel-card::before { background: linear-gradient(90deg, var(--red), var(--pink)); }
+  .c-relation .channel-badge { background: rgba(255,77,77,0.12); color: var(--red); }
+
+  .c-humour .cat-icon { background: rgba(255,209,102,0.12); }
+  .c-humour .cat-tag { background: rgba(255,209,102,0.1); color: var(--yellow); border: 1px solid rgba(255,209,102,0.2); }
+  .c-humour .channel-card::before { background: linear-gradient(90deg, var(--yellow), var(--orange)); }
+  .c-humour .channel-badge { background: rgba(255,209,102,0.12); color: var(--yellow); }
+
+  .c-sleep .cat-icon { background: rgba(72,149,239,0.12); }
+  .c-sleep .cat-tag { background: rgba(72,149,239,0.1); color: var(--blue); border: 1px solid rgba(72,149,239,0.2); }
+  .c-sleep .channel-card::before { background: linear-gradient(90deg, var(--blue), var(--purple)); }
+  .c-sleep .channel-badge { background: rgba(72,149,239,0.12); color: var(--blue); }
+
+  /* PRO TIP */
+  .pro-tip {
+    background: rgba(72,149,239,0.06);
+    border: 1px solid rgba(72,149,239,0.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 12px;
+  }
+  .tip-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .tip-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .tip-text strong { color: var(--white); }
+
+  /* HIDDEN */
+  .category.hidden { display: none; }
+
+  @media (max-width: 600px) {
+    .hero { padding: 50px 20px 40px; }
+    .main { padding: 28px 16px 48px; }
+    .channels { grid-template-columns: 1fr; }
+    .filter-bar { padding: 0 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="yt-badge"><span class="yt-dot"></span> YouTube Mastery Hub</div>
+  <h1>
+    <div class="line1">Your Complete</div>
+    <div class="line2">Playlist Arsenal</div>
+  </h1>
+  <p class="hero-sub">Every channel you need — curated, categorized, and ready to transform every area of your life.</p>
+  <div class="cat-count">
+    <div class="count-item"><div class="count-num">13</div><div class="count-label">Life Areas</div></div>
+    <div class="count-item"><div class="count-num">40+</div><div class="count-label">Channels</div></div>
+    <div class="count-item"><div class="count-num">100+</div><div class="count-label">Playlists</div></div>
+    <div class="count-item"><div class="count-num">Free</div><div class="count-label">All of It</div></div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <div class="filter-btn active" onclick="filterCat('all', this)">⚡ All</div>
+  <div class="filter-btn" onclick="filterCat('body', this)">💪 Body</div>
+  <div class="filter-btn" onclick="filterCat('fight', this)">🥊 Fighting</div>
+  <div class="filter-btn" onclick="filterCat('skin', this)">✨ Skin & Jaw</div>
+  <div class="filter-btn" onclick="filterCat('english', this)">📖 English</div>
+  <div class="filter-btn" onclick="filterCat('speak', this)">🎤 Speaking</div>
+  <div class="filter-btn" onclick="filterCat('mind', this)">🧘 Mind & Sleep</div>
+  <div class="filter-btn" onclick="filterCat('psych', this)">🧬 Psychology</div>
+  <div class="filter-btn" onclick="filterCat('finance', this)">💰 Finance</div>
+  <div class="filter-btn" onclick="filterCat('tech', this)">💻 Tech</div>
+  <div class="filter-btn" onclick="filterCat('fashion', this)">👗 Fashion</div>
+  <div class="filter-btn" onclick="filterCat('relation', this)">❤️ Relationships</div>
+  <div class="filter-btn" onclick="filterCat('humour', this)">😂 Humour</div>
+</div>
+
+<div class="main">
+
+  <!-- BODY BUILDING -->
+  <div class="category c-body" data-cat="body">
+    <div class="cat-header">
+      <div class="cat-icon">💪</div>
+      <div>
+        <div class="cat-title">Building Your Body</div>
+        <div class="cat-desc">Science-backed muscle, strength & physique development</div>
+      </div>
+      <div class="cat-tag">HIGH EFFORT</div>
+    </div>
+    <div class="channels">
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Jeff Nippard</div>
+            <div class="channel-handle">@JeffNippard</div>
+          </div>
+          <div class="channel-badge">#1 Pick</div>
+        </div>
+        <p class="channel-desc">Biochemistry degree meets bodybuilding. The most evidence-based fitness channel on YouTube — he explains the why behind every rep and meal. No bro science.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@JeffNippard/playlists" target="_blank">Full Body Science-Based Programs <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@JeffNippard/playlists" target="_blank">Muscle Building Fundamentals <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@JeffNippard/playlists" target="_blank">Nutrition & Fat Loss Series <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">ATHLEAN-X</div>
+            <div class="channel-handle">@athleanx</div>
+          </div>
+          <div class="channel-badge">Expert</div>
+        </div>
+        <p class="channel-desc">Jeff Cavaliere is a physical therapist and strength coach. Covers injury prevention, correct form, and building athletic muscle — not just aesthetic muscle.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@athleanx/playlists" target="_blank">Perfect Form Series <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@athleanx/playlists" target="_blank">Body Part Training (Chest/Back/Legs) <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@athleanx/playlists" target="_blank">Abs & Core Training <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Renaissance Periodization</div>
+            <div class="channel-handle">@RenaissancePeriodization</div>
+          </div>
+          <div class="channel-badge">PhD Level</div>
+        </div>
+        <p class="channel-desc">Dr. Mike Israetel holds a PhD in Sport Physiology. Deep, comprehensive breakdowns of hypertrophy, strength and nutrition. Binge-worthy and highly credible.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@RenaissancePeriodization/playlists" target="_blank">How to Build Muscle Series <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@RenaissancePeriodization/playlists" target="_blank">Diet & Nutrition Science <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@RenaissancePeriodization/playlists" target="_blank">Full Training Programs <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="pro-tip">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><strong>Pro Tip:</strong> Start with Jeff Nippard's "Fundamentals" series first. Once you have the basics, move to RP for deep science and ATHLEAN-X for form correction. Don't skip to advanced content — the basics, done perfectly, give 80% of results.</div>
+    </div>
+  </div>
+
+  <!-- FIGHTING -->
+  <div class="category c-fight" data-cat="fight">
+    <div class="cat-header">
+      <div class="cat-icon">🥊</div>
+      <div>
+        <div class="cat-title">Fighting Skills</div>
+        <div class="cat-desc">BJJ, Muay Thai and real-world self-defense mastery</div>
+      </div>
+      <div class="cat-tag">HIGH EFFORT</div>
+    </div>
+    <div class="channels">
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Bernardo Faria BJJ</div>
+            <div class="channel-handle">@BernardoFariaBJJ</div>
+          </div>
+          <div class="channel-badge">BJJ #1</div>
+        </div>
+        <p class="channel-desc">5x World Champion black belt. The best free BJJ instruction on YouTube — covers fundamentals deeply. More useful than most paid courses for beginners and intermediates.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@BernardoFariaBJJ/playlists" target="_blank">BJJ Fundamentals & Basics <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@BernardoFariaBJJ/playlists" target="_blank">Guard Passing Series <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@BernardoFariaBJJ/playlists" target="_blank">Submissions & Finishing <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">FightTips</div>
+            <div class="channel-handle">@FightTips</div>
+          </div>
+          <div class="channel-badge">MMA Best</div>
+        </div>
+        <p class="channel-desc">Shane Fazen covers Muay Thai, BJJ, boxing and self-defense in a beginner-friendly format. Practical techniques for real-world situations. An encyclopedia of modern martial arts.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@FightTips/playlists" target="_blank">Muay Thai for Beginners <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@FightTips/playlists" target="_blank">Self Defense Essentials <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@FightTips/playlists" target="_blank">Boxing Fundamentals <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Lawrence Kenshin</div>
+            <div class="channel-handle">@LawrenceKenshin</div>
+          </div>
+          <div class="channel-badge">Striking</div>
+        </div>
+        <p class="channel-desc">Premium breakdowns of legendary Muay Thai and kickboxing techniques. His analysis of elite fighters teaches you to see and understand striking at a completely different level.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@LawrenceKenshin/playlists" target="_blank">Muay Thai Striking Breakdowns <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@LawrenceKenshin/playlists" target="_blank">Fighter Technique Analysis <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@LawrenceKenshin/playlists" target="_blank">Saenchai Special Series <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="pro-tip">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><strong>Pro Tip:</strong> YouTube teaches theory. <strong>You MUST join a real gym to spar.</strong> Use these channels to prep your mind before class and review techniques after. Never mistake watching for training.</div>
+    </div>
+  </div>
+
+  <!-- SKIN & JAWLINE -->
+  <div class="category c-skin" data-cat="skin">
+    <div class="cat-header">
+      <div class="cat-icon">✨</div>
+      <div>
+        <div class="cat-title">Skin & Sharp Jawline</div>
+        <div class="cat-desc">Science-based skincare, grooming and facial structure for men</div>
+      </div>
+      <div class="cat-tag">DAILY HABIT</div>
+    </div>
+    <div class="channels">
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">James Welsh</div>
+            <div class="channel-handle">@JamesWelsh</div>
+          </div>
+          <div class="channel-badge">Men's #1</div>
+        </div>
+        <p class="channel-desc">The go-to skincare channel for men. James suffered from acne and built his channel around what actually works for male skin. Budget-friendly to premium — honest reviews with no sponsorship bias.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@JamesWelsh/playlists" target="_blank">Men's Skincare Routines (Beginner to Advanced) <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@JamesWelsh/playlists" target="_blank">Acne & Problem Skin Solutions <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@JamesWelsh/playlists" target="_blank">Budget Skincare That Works <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Dr. Dray</div>
+            <div class="channel-handle">@DrDrayzday</div>
+          </div>
+          <div class="channel-badge">Dermatologist</div>
+        </div>
+        <p class="channel-desc">Board-certified dermatologist who breaks down skincare ingredients scientifically. Debunks myths and tells you exactly what retinol, SPF and vitamin C actually do to your skin.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@DrDrayzday/playlists" target="_blank">Skincare Ingredients Explained <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@DrDrayzday/playlists" target="_blank">Routine Building Series <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@DrDrayzday/playlists" target="_blank">Sunscreen & Anti-Aging Science <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Alpha M. (Aaron Marino)</div>
+            <div class="channel-handle">@AlphaMconsulting</div>
+          </div>
+          <div class="channel-badge">Grooming</div>
+        </div>
+        <p class="channel-desc">Complete men's grooming, jawline exercises, mewing guides, hair, and overall presentation. The original men's self-improvement channel — practical and no-nonsense.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@AlphaMconsulting/playlists" target="_blank">Men's Grooming Complete Guide <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@AlphaMconsulting/playlists" target="_blank">Jawline & Face Structure Tips <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@AlphaMconsulting/playlists" target="_blank">Hair Care & Styling <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="pro-tip">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><strong>Jawline truth:</strong> No exercise creates bone structure. But <strong>losing body fat</strong> (below 12%) reveals what's already there. Mewing (correct tongue posture) and good posture help maintain definition. Start with James Welsh for routine, Dr. Dray for science.</div>
+    </div>
+  </div>
+
+  <!-- ADVANCED ENGLISH -->
+  <div class="category c-english" data-cat="english">
+    <div class="cat-header">
+      <div class="cat-icon">📖</div>
+      <div>
+        <div class="cat-title">Advanced English</div>
+        <div class="cat-desc">Vocabulary, grammar, idioms and native-level fluency</div>
+      </div>
+      <div class="cat-tag">DAILY PRACTICE</div>
+    </div>
+    <div class="channels">
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">English with Lucy</div>
+            <div class="channel-handle">@EnglishwithLucy</div>
+          </div>
+          <div class="channel-badge">10M Subs</div>
+        </div>
+        <p class="channel-desc">Cambridge-certified teacher with 10M+ subscribers. Covers British English, idioms, vocabulary expansion, grammar and natural conversation. Crystal clear and structured.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@EnglishwithLucy/playlists" target="_blank">Advanced English Vocabulary <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@EnglishwithLucy/playlists" target="_blank">English Idioms & Phrases <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@EnglishwithLucy/playlists" target="_blank">Everyday English Conversations <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">BBC Learning English</div>
+            <div class="channel-handle">@bbclearningenglish</div>
+          </div>
+          <div class="channel-badge">Official</div>
+        </div>
+        <p class="channel-desc">The gold standard. "6 Minute English" is perfect for daily listening. "The English We Speak" teaches natural idioms. Every episode has transcripts — ideal for study.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@bbclearningenglish/playlists" target="_blank">6 Minute English <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@bbclearningenglish/playlists" target="_blank">The English We Speak (Idioms) <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@bbclearningenglish/playlists" target="_blank">Pronunciation in the News <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Go Natural English</div>
+            <div class="channel-handle">@GoNaturalEnglish</div>
+          </div>
+          <div class="channel-badge">Fluency</div>
+        </div>
+        <p class="channel-desc">Gabby Wallace focuses on sounding natural — not textbook perfect. Teaches advanced vocab, slang, idiomatic expressions and how to think directly in English without translating.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@GoNaturalEnglish/playlists" target="_blank">How to Sound Like a Native Speaker <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@GoNaturalEnglish/playlists" target="_blank">Advanced English Vocabulary <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@GoNaturalEnglish/playlists" target="_blank">Real English Conversations <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="pro-tip">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><strong>Daily system:</strong> Watch one BBC 6-Minute English (morning) → write 5 new words in your journal → shadow one Go Natural English video (evening). <strong>Write 200 words daily.</strong> Progress happens in weeks, not months, with this system.</div>
+    </div>
+  </div>
+
+  <!-- SPEAKING FLUENCY -->
+  <div class="category c-speak" data-cat="speak">
+    <div class="cat-header">
+      <div class="cat-icon">🎤</div>
+      <div>
+        <div class="cat-title">Speaking Fluency & Confidence</div>
+        <div class="cat-desc">Pronunciation, public speaking and commanding presence</div>
+      </div>
+      <div class="cat-tag">DAILY PRACTICE</div>
+    </div>
+    <div class="channels">
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Rachel's English</div>
+            <div class="channel-handle">@rachelsenglish</div>
+          </div>
+          <div class="channel-badge">Pronunciation #1</div>
+        </div>
+        <p class="channel-desc">Voice coach specialising in American pronunciation. Breaks down mouth positions, intonation and connected speech in meticulous detail. Best for mastering natural-sounding spoken English.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@rachelsenglish/playlists" target="_blank">American English Pronunciation Course <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@rachelsenglish/playlists" target="_blank">Connected Speech & Reduction <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@rachelsenglish/playlists" target="_blank">Real-Life Conversation Practice <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Charisma on Command</div>
+            <div class="channel-handle">@CharismaOnCommand</div>
+          </div>
+          <div class="channel-badge">Presence</div>
+        </div>
+        <p class="channel-desc">Breaks down charismatic communication through real examples from celebrities and leaders. Teaches confidence, storytelling, humour timing and social magnetism with actionable frameworks.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@CharismaOnCommand/playlists" target="_blank">How to Be Charismatic <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@CharismaOnCommand/playlists" target="_blank">Confidence & Social Skills <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@CharismaOnCommand/playlists" target="_blank">Body Language Mastery <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">TED (Official)</div>
+            <div class="channel-handle">@TED</div>
+          </div>
+          <div class="channel-badge">Shadow This</div>
+        </div>
+        <p class="channel-desc">The world's best speakers — use these for shadowing practice. Watch a talk, pause, repeat sentences. Study structure, pacing, pauses and how ideas are delivered. Your free speaking school.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@TED/playlists" target="_blank">How to Speak (Communication Talks) <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@TED/playlists" target="_blank">Most Popular Talks of All Time <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@TED/playlists" target="_blank">Psychology & Human Behaviour Talks <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="pro-tip">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><strong>The Shadowing Method:</strong> Play a Rachel's English video → pause after each sentence → say it out loud exactly as she did → record yourself → compare. Do this for just 10 mins daily. In 90 days your accent and clarity will be unrecognisable.</div>
+    </div>
+  </div>
+
+  <!-- MIND & SLEEP -->
+  <div class="category c-mind" data-cat="mind">
+    <div class="cat-header">
+      <div class="cat-icon">🧘</div>
+      <div>
+        <div class="cat-title">Meditation, Learning & Sleep</div>
+        <div class="cat-desc">Brain performance, focus, memory and recovery science</div>
+      </div>
+      <div class="cat-tag">DAILY HABIT</div>
+    </div>
+    <div class="channels">
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Andrew Huberman</div>
+            <div class="channel-handle">@hubermanlab</div>
+          </div>
+          <div class="channel-badge">Stanford #1</div>
+        </div>
+        <p class="channel-desc">Stanford neuroscientist who translates cutting-edge brain science into practical daily protocols. NSDR, sleep optimization, focus, dopamine control — this channel is the ultimate brain owner's manual.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@hubermanlab/playlists" target="_blank">Sleep Optimization Protocols <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@hubermanlab/playlists" target="_blank">Focus & Learning Science <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@hubermanlab/playlists" target="_blank">Meditation & NSDR Practice <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Ali Abdaal</div>
+            <div class="channel-handle">@aliabdaal</div>
+          </div>
+          <div class="channel-badge">Learning</div>
+        </div>
+        <p class="channel-desc">Former Cambridge medical student and doctor turned productivity YouTuber. Best content on evidence-based study techniques, spaced repetition, Anki, and building systems that actually work.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@aliabdaal/playlists" target="_blank">Evidence-Based Study Techniques <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@aliabdaal/playlists" target="_blank">How to Learn Anything Faster <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@aliabdaal/playlists" target="_blank">Productivity & Focus Systems <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Waking Up (Sam Harris)</div>
+            <div class="channel-handle">@SamHarrisOrg</div>
+          </div>
+          <div class="channel-badge">Meditation</div>
+        </div>
+        <p class="channel-desc">Neuroscientist and meditation teacher Sam Harris. Best entry point for serious, science-grounded meditation practice. The Waking Up app is the companion — this channel gives you the philosophy.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@SamHarrisOrg/playlists" target="_blank">Introduction to Meditation <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@SamHarrisOrg/playlists" target="_blank">Mindfulness & Consciousness <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@SamHarrisOrg/playlists" target="_blank">Mental Performance Science <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="pro-tip">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><strong>The Huberman Protocol:</strong> Morning sunlight (10 min) → NSDR or meditation (10 min) → focused work (90 min blocks) → no caffeine after 2PM → no screens 1hr before bed. This stack alone adds 20% to your brain performance. Watch his sleep episode first.</div>
+    </div>
+  </div>
+
+  <!-- PSYCHOLOGY -->
+  <div class="category c-psych" data-cat="psych">
+    <div class="cat-header">
+      <div class="cat-icon">🧬</div>
+      <div>
+        <div class="cat-title">Human Psychology</div>
+        <div class="cat-desc">Understand why people think, feel and behave the way they do</div>
+      </div>
+      <div class="cat-tag">DEEP STUDY</div>
+    </div>
+    <div class="channels">
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Einzelgänger</div>
+            <div class="channel-handle">@Einzelganger</div>
+          </div>
+          <div class="channel-badge">Philosophy</div>
+        </div>
+        <p class="channel-desc">Deep-dive philosophy and psychology — Stoicism, Jungian psychology, existentialism and human behaviour explained beautifully. Transforms how you understand yourself and others.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@Einzelganger/playlists" target="_blank">Stoic Philosophy Applied <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@Einzelganger/playlists" target="_blank">Jungian Psychology & Shadow Work <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@Einzelganger/playlists" target="_blank">Human Behaviour & Social Psychology <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Psych2Go</div>
+            <div class="channel-handle">@Psych2Go</div>
+          </div>
+          <div class="channel-badge">Accessible</div>
+        </div>
+        <p class="channel-desc">Psychology made accessible and visual. Covers cognitive biases, personality types, attachment theory, manipulation tactics and mental health awareness. Great starting point for beginners.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@Psych2Go/playlists" target="_blank">Cognitive Biases Series <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@Psych2Go/playlists" target="_blank">Personality Psychology <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@Psych2Go/playlists" target="_blank">Social Psychology & Influence <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Lex Fridman</div>
+            <div class="channel-handle">@lexfridman</div>
+          </div>
+          <div class="channel-badge">Deep Talks</div>
+        </div>
+        <p class="channel-desc">World's top thinkers — psychologists, neuroscientists, philosophers. Long-form conversations that stretch your thinking. Excellent for English listening AND psychological understanding simultaneously.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@lexfridman/playlists" target="_blank">Psychology & Human Mind Episodes <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@lexfridman/playlists" target="_blank">Philosophy of Life & Existence <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@lexfridman/playlists" target="_blank">AI, Consciousness & Intelligence <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="pro-tip">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><strong>Apply in real life:</strong> After each psychology video, write down 1 insight and how it explains someone in your life. The goal isn't to accumulate knowledge — it's to change how you observe people. Real understanding comes from observation, not just watching videos.</div>
+    </div>
+  </div>
+
+  <!-- FINANCE -->
+  <div class="category c-finance" data-cat="finance">
+    <div class="cat-header">
+      <div class="cat-icon">💰</div>
+      <div>
+        <div class="cat-title">Financial Knowledge</div>
+        <div class="cat-desc">Budgeting, investing, wealth building and financial freedom</div>
+      </div>
+      <div class="cat-tag">LONG GAME</div>
+    </div>
+    <div class="channels">
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Graham Stephan</div>
+            <div class="channel-handle">@GrahamStephan</div>
+          </div>
+          <div class="channel-badge">Real Estate</div>
+        </div>
+        <p class="channel-desc">Real estate investor who makes money genuinely watchable. Transparent about his own portfolio and mistakes. Covers investing, real estate, budgeting and spending habits without preaching or condescension.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@GrahamStephan/playlists" target="_blank">How to Build Wealth in Your 20s <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@GrahamStephan/playlists" target="_blank">Investing Basics for Beginners <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@GrahamStephan/playlists" target="_blank">Real Estate & Passive Income <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Andrei Jikh</div>
+            <div class="channel-handle">@AndreiJikh</div>
+          </div>
+          <div class="channel-badge">Index Investing</div>
+        </div>
+        <p class="channel-desc">Beautiful, visually explained personal finance content. Focuses on index fund investing, dividend strategies and long-term wealth. Evidence-first approach — no hot takes or stock picking hype.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@AndreiJikh/playlists" target="_blank">Index Fund Investing Complete Guide <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@AndreiJikh/playlists" target="_blank">Dividend Investing for Beginners <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@AndreiJikh/playlists" target="_blank">Compound Interest Deep Dives <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Two Cents (PBS)</div>
+            <div class="channel-handle">@TwoCentsPBS</div>
+          </div>
+          <div class="channel-badge">Beginner Best</div>
+        </div>
+        <p class="channel-desc">PBS-backed channel that explains personal finance without hype. Clear, credible and practical. Perfect if you're building your first understanding of budgeting, saving and investing fundamentals.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@TwoCentsPBS/playlists" target="_blank">Personal Finance Fundamentals <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@TwoCentsPBS/playlists" target="_blank">Budgeting & Saving Money <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@TwoCentsPBS/playlists" target="_blank">Understanding the Stock Market <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="pro-tip">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><strong>Order of operations:</strong> Watch Two Cents first to build foundations → then Graham Stephan for practical strategies → then Andrei Jikh for long-term investing. <strong>Start a SIP (Systematic Investment Plan) with even ₹500/month.</strong> Time in market always beats timing the market.</div>
+    </div>
+  </div>
+
+  <!-- TECH -->
+  <div class="category c-tech" data-cat="tech">
+    <div class="cat-header">
+      <div class="cat-icon">💻</div>
+      <div>
+        <div class="cat-title">Tech Knowledge & Coding</div>
+        <div class="cat-desc">Programming, AI literacy and staying ahead of the tech curve</div>
+      </div>
+      <div class="cat-tag">COMPOUND SKILL</div>
+    </div>
+    <div class="channels">
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Fireship</div>
+            <div class="channel-handle">@Fireship</div>
+          </div>
+          <div class="channel-badge">Tech #1</div>
+        </div>
+        <p class="channel-desc">The fastest way to understand any tech concept. Dense, accurate and entertaining. "100 seconds" series explains programming languages and tools in under 2 minutes. Perfect for building tech literacy quickly.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@Fireship/playlists" target="_blank">100 Seconds of Code Series <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@Fireship/playlists" target="_blank">Python Fundamentals <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@Fireship/playlists" target="_blank">AI & Machine Learning Explained <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">freeCodeCamp</div>
+            <div class="channel-handle">@freecodecamp</div>
+          </div>
+          <div class="channel-badge">Learn to Code</div>
+        </div>
+        <p class="channel-desc">Free, full-length coding courses — Python, JavaScript, Data Science and more. The best structured learning path for complete beginners. Full university-level courses at zero cost.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@freecodecamp/playlists" target="_blank">Python Full Course for Beginners <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@freecodecamp/playlists" target="_blank">Data Science & Machine Learning <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@freecodecamp/playlists" target="_blank">Web Development Complete Course <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Lex Fridman</div>
+            <div class="channel-handle">@lexfridman</div>
+          </div>
+          <div class="channel-badge">Deep Tech</div>
+        </div>
+        <p class="channel-desc">MIT researcher interviewing the world's top AI scientists, engineers and founders. Gives you depth and context on where technology is heading — essential for thinking about the future intelligently.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@lexfridman/playlists" target="_blank">AI & Machine Learning Deep Dives <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@lexfridman/playlists" target="_blank">Programming & Computer Science <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@lexfridman/playlists" target="_blank">Future of Technology Conversations <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="pro-tip">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><strong>Build, don't just watch:</strong> Use freeCodeCamp to learn Python → use Fireship to understand the ecosystem → build one small project per month. A portfolio of 12 projects in 12 months is more valuable than any degree in tech hiring today.</div>
+    </div>
+  </div>
+
+  <!-- FASHION -->
+  <div class="category c-fashion" data-cat="fashion">
+    <div class="cat-header">
+      <div class="cat-icon">👗</div>
+      <div>
+        <div class="cat-title">Fashion & Style</div>
+        <div class="cat-desc">Fit, colour coordination, grooming and personal aesthetic</div>
+      </div>
+      <div class="cat-tag">LIFESTYLE</div>
+    </div>
+    <div class="channels">
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">TeachingMensFashion</div>
+            <div class="channel-handle">@teachingmensfashion</div>
+          </div>
+          <div class="channel-badge">Men's Best</div>
+        </div>
+        <p class="channel-desc">Jose Zuniga's channel is the complete package — style, grooming, skin, hair and confidence. Practical, accessible and no-nonsense. Great for building from nothing to a consistently well-dressed man.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@teachingmensfashion/playlists" target="_blank">Men's Style Fundamentals <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@teachingmensfashion/playlists" target="_blank">Building a Capsule Wardrobe <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@teachingmensfashion/playlists" target="_blank">Casual to Formal Outfit Guides <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Real Men Real Style</div>
+            <div class="channel-handle">@RealMenRealStyle</div>
+          </div>
+          <div class="channel-badge">Deep Style</div>
+        </div>
+        <p class="channel-desc">Antonio Centeno (former Marine) goes deep on why clothes work — fabric, body proportion, colour theory and wardrobe investment. Explains the mechanics of style, not just "wear this."</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@RealMenRealStyle/playlists" target="_blank">Colour Coordination Masterclass <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@RealMenRealStyle/playlists" target="_blank">Dress for Your Body Type <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@RealMenRealStyle/playlists" target="_blank">Wardrobe Investment Strategy <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Tim Dessaint</div>
+            <div class="channel-handle">@TimDessaint</div>
+          </div>
+          <div class="channel-badge">Aesthetic</div>
+        </div>
+        <p class="channel-desc">Sophisticated, minimal men's style with a modern European aesthetic. Great for guys who want to look effortlessly put-together rather than try-hard. High quality content on taste and discernment.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@TimDessaint/playlists" target="_blank">Minimalist Men's Style Guide <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@TimDessaint/playlists" target="_blank">Outfit Inspiration & Lookbooks <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@TimDessaint/playlists" target="_blank">Essential Items Worth Buying <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="pro-tip">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><strong>The one rule:</strong> <strong>Fit is everything.</strong> A ₹500 t-shirt that fits perfectly beats a ₹5000 one that's baggy every single time. Before buying anything new, watch Antonio Centeno's "dress for your body type" video. It changes how you shop forever.</div>
+    </div>
+  </div>
+
+  <!-- RELATIONSHIPS -->
+  <div class="category c-relation" data-cat="relation">
+    <div class="cat-header">
+      <div class="cat-icon">❤️</div>
+      <div>
+        <div class="cat-title">Healthy Relationships</div>
+        <div class="cat-desc">Friends, romantic relationships, communication and emotional intelligence</div>
+      </div>
+      <div class="cat-tag">LIFESTYLE</div>
+    </div>
+    <div class="channels">
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">The School of Life</div>
+            <div class="channel-handle">@theschooloflifetv</div>
+          </div>
+          <div class="channel-badge">Must Watch</div>
+        </div>
+        <p class="channel-desc">Beautifully animated videos on emotional intelligence, relationships, self-knowledge and how to live well. More insight per minute than most therapy sessions. Will fundamentally shift how you relate to people.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@theschooloflifetv/playlists" target="_blank">Relationships & Love <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@theschooloflifetv/playlists" target="_blank">Emotional Intelligence <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@theschooloflifetv/playlists" target="_blank">Self-Knowledge & Character <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Matthew Hussey</div>
+            <div class="channel-handle">@MatthewHussey</div>
+          </div>
+          <div class="channel-badge">Dating & Social</div>
+        </div>
+        <p class="channel-desc">Relationship coach with genuine depth. Covers attraction, communication, conflict resolution, vulnerability and maintaining healthy romantic relationships. Equally valuable for men and women.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@MatthewHussey/playlists" target="_blank">Relationships & Communication <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@MatthewHussey/playlists" target="_blank">How to Be More Attractive <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@MatthewHussey/playlists" target="_blank">Confidence & Dating Advice <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Charisma on Command</div>
+            <div class="channel-handle">@CharismaOnCommand</div>
+          </div>
+          <div class="channel-badge">Social Skills</div>
+        </div>
+        <p class="channel-desc">Teaches the exact behaviours behind likeable, magnetic people. Covers how to make friends easily, hold conversations, handle social tension and be genuinely fun to be around — with real examples.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@CharismaOnCommand/playlists" target="_blank">How to Make Friends as an Adult <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@CharismaOnCommand/playlists" target="_blank">Social Skills & Likability <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@CharismaOnCommand/playlists" target="_blank">Handling Difficult Conversations <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="pro-tip">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><strong>For friendships:</strong> Be the initiator — most people wait. Text first. Show up when it's hard. For your girlfriend: full presence (phone away) and daily appreciation are the most underrated relationship tools. Watch The School of Life's "Love Languages" video together.</div>
+    </div>
+  </div>
+
+  <!-- HUMOUR -->
+  <div class="category c-humour" data-cat="humour">
+    <div class="cat-header">
+      <div class="cat-icon">😂</div>
+      <div>
+        <div class="cat-title">Sense of Humour</div>
+        <div class="cat-desc">Comedy structure, timing, wit and the art of making people laugh</div>
+      </div>
+      <div class="cat-tag">SOFT SKILL</div>
+    </div>
+    <div class="channels">
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Seinfeld (Official Clips)</div>
+            <div class="channel-handle">@SeinfeldTV</div>
+          </div>
+          <div class="channel-badge">Study This</div>
+        </div>
+        <p class="channel-desc">Watch Seinfeld to understand the structure of comedy — finding absurdity in ordinary life. His stand-up especially shows how observation + surprise = laughter. The best comedy school available for free.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/results?search_query=seinfeld+stand+up" target="_blank">Seinfeld Stand-Up Specials <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/results?search_query=comedians+in+cars+seinfeld" target="_blank">Comedians in Cars Getting Coffee <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/results?search_query=how+to+write+comedy+seinfeld" target="_blank">How Seinfeld Writes Jokes <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Charisma on Command</div>
+            <div class="channel-handle">@CharismaOnCommand</div>
+          </div>
+          <div class="channel-badge">Humour Science</div>
+        </div>
+        <p class="channel-desc">Breaks down exactly why funny people are funny — timing, misdirection, self-deprecation and playfulness. Has full videos analysing comedians and charismatic people so you can copy the structure.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/@CharismaOnCommand/playlists" target="_blank">How to Be Funny (Without Trying) <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@CharismaOnCommand/playlists" target="_blank">Humour & Wit in Conversation <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/@CharismaOnCommand/playlists" target="_blank">Comedian Breakdowns (Ryan Reynolds etc.) <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-top">
+          <div class="channel-name-wrap">
+            <div class="channel-name">Dave Chappelle & Specials</div>
+            <div class="channel-handle">YouTube / Netflix</div>
+          </div>
+          <div class="channel-badge">Master Class</div>
+        </div>
+        <p class="channel-desc">Watch Dave Chappelle not to copy his jokes but to study his timing, pacing, crowd control and storytelling. He's a masterclass in confidence and specificity — the two most underrated comedy tools.</p>
+        <div class="playlist-label">▸ Key Playlists</div>
+        <div class="playlists">
+          <a class="playlist-item" href="https://www.youtube.com/results?search_query=how+to+be+funny+comedy+breakdown" target="_blank">How to Be Funny — Comedy Analysis <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/results?search_query=comedy+timing+explained" target="_blank">Comedy Timing Masterclass <span class="pl-arrow">↗</span></a>
+          <a class="playlist-item" href="https://www.youtube.com/results?search_query=stand+up+comedy+structure+breakdown" target="_blank">Stand-Up Structure Breakdowns <span class="pl-arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="pro-tip">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><strong>The humour secret:</strong> Don't try to be funny — be <strong>curious and playful</strong>. Funny people notice absurdity others miss. Start by finding something odd in your day and sharing it with a friend. Observation + surprise is the formula. Charisma on Command's "How to Be Funnier" is the best single video on this.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function filterCat(cat, el) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.category').forEach(c => {
+      if (cat === 'all') {
+        c.classList.remove('hidden');
+      } else {
+        c.getAttribute('data-cat') === cat
+          ? c.classList.remove('hidden')
+          : c.classList.add('hidden');
+      }
+    });
+    window.scrollTo({ top: 160, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
